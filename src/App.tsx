@@ -4,6 +4,7 @@ import throttle from 'lodash/throttle'
 import './App.css'
 import patchLevels from './lib/patchLevels'
 import { OrderBookLevel } from './types'
+import Levels from './Levels'
 
 type ProductId = 'PI_XBTUSD' | 'PI_ETHUSD'
 
@@ -121,25 +122,28 @@ function App() {
     <div className="App">
       {book && (
         <>
-          <h1>Buy</h1>
-          <ul>
-            {book.buy
-              .slice(-15)
-              .reverse()
-              .map(({ price, size }) => (
-                <li key={price}>
-                  {price}, {size}
-                </li>
-              ))}
-          </ul>
-          <h2>Sell</h2>
-          <ul>
-            {book.sell.slice(0, 15).map(({ price, size }) => (
-              <li key={price}>
-                {price}, {size}
-              </li>
-            ))}
-          </ul>
+          <div
+            style={{
+              padding: '20px',
+              float: 'left',
+              textAlign: 'left',
+              width: 400,
+            }}
+          >
+            <h1>Buy</h1>
+            <Levels levels={book.buy.slice(-15).reverse()} side="buy" />
+          </div>
+          <div
+            style={{
+              padding: '20px',
+              float: 'left',
+              textAlign: 'left',
+              width: 400,
+            }}
+          >
+            <h1>Sell</h1>
+            <Levels levels={book.sell.slice(0, 15)} side="sell" />
+          </div>
         </>
       )}
       <button onClick={handleToggleFeedClick}>Toggle feed</button>
