@@ -136,6 +136,7 @@ function App() {
         <Header>
           <Title>Order Book</Title>
           <GroupSizeSelect
+            aria-label="Select group size"
             value={groupSize}
             onChange={(e) => setGroupSize(parseFloat(e.target.value))}
           >
@@ -157,8 +158,16 @@ function App() {
         </Header>
         {groupedBook && (
           <SidesContainer>
-            <Levels levels={groupedBook.sell.slice(0, 15)} side="sell" />
-            <Levels levels={groupedBook.buy.slice(-15).reverse()} side="buy" />
+            <Levels
+              levels={groupedBook.sell.slice(0, 15)}
+              side="sell"
+              aria-label="Sell side"
+            />
+            <Levels
+              levels={groupedBook.buy.slice(-15).reverse()}
+              side="buy"
+              aria-label="Buy side"
+            />
           </SidesContainer>
         )}
       </Main>
