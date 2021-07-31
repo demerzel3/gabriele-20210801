@@ -116,14 +116,18 @@ const useOrderBook = ({
         return
       }
 
-      if ('numLevels' in eventData) {
+      if (
+        'numLevels' in eventData &&
+        'bids' in eventData &&
+        'asks' in eventData
+      ) {
         // One-time snapshot.
         setBookImmediate({
           // Sort both buy and sell by price ascending
           buy: eventData.bids.reverse().map(rawLevelToOrderBookLevel),
           sell: eventData.asks.map(rawLevelToOrderBookLevel),
         })
-      } else {
+      } else if ('bids' in eventData && 'asks' in eventData) {
         // Delta
         setBook((book) => ({
           buy: patchLevels(
