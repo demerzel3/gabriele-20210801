@@ -1,15 +1,66 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import styled from 'styled-components'
+import { green1, green2, red1, red2, gray4 } from './colors'
 
 import { OrderBookLevel } from './types'
 
 type OrderBookLevelWithTotal = OrderBookLevel & { total: number }
 
+type Side = 'buy' | 'sell'
+
 type LevelsProps = {
   levels: OrderBookLevel[]
-  side: 'buy' | 'sell'
+  side: Side
 }
 
+const Root = styled.div<{ side: Side }>`
+  text-align: right;
+  display: flex;
+  flex-direction: ${(p) => (p.side === 'buy' ? 'column' : 'column-reverse')};
+`
+
+const Row = styled.div`
+  position: relative;
+  display: flex;
+  line-height: 1.6em;
+  padding: 0 48px;
+`
+
+const HeaderRow = styled(Row)<{ side: Side }>`
+  ${(p) => (p.side === 'sell' ? 'order: 1;' : '')}
+  ${(p) => (p.side === 'buy' ? 'visibility: hidden;' : '')}
+`
+
+const Depth = styled.div<{ side: Side }>`
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: ${(p) => (p.side === 'buy' ? green1 : red1)};
+  z-index: 0;
+`
+
+const Header = styled.div`
+  text-transform: uppercase;
+  flex: 1 1 33%;
+  color: ${gray4};
+`
+
+const Cell = styled.div<{ side?: Side }>`
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', Courier,
+    monospace;
+  flex: 1 1 33%;
+  position: relative;
+  z-index: 1;
+  ${(p) => (p.side ? `color: ${p.side === 'buy' ? green2 : red2};` : '')}
+`
+
 const Levels: React.FC<LevelsProps> = ({ levels, side }) => {
+  const sizeFormatter = useMemo(() => new Intl.NumberFormat('en-US'), [])
+  const priceFormatter = useMemo(
+    () => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }),
+    []
+  )
   const [levelsWithTotals, grandTotal] = levels.reduce(
     ([levelsWithTotals, grandTotal], level) => {
       grandTotal += level.size
@@ -20,49 +71,25 @@ const Levels: React.FC<LevelsProps> = ({ levels, side }) => {
     [[] as OrderBookLevelWithTotal[], 0]
   )
 
-  // TODO: achieve the inversion of columns via CSS, use it with media query for mobile
-  return side === 'buy' ? (
-    <table>
-      <thead>
-        <tr>
-          <th>total</th>
-          <th>size</th>
-          <th>price</th>
-        </tr>
-      </thead>
-      <tbody>
-        {levelsWithTotals.map(({ price, size, total }) => (
-          <tr key={price}>
-            <td>
-              {total} {((total / grandTotal) * 100).toFixed(2)}%
-            </td>
-            <td>{size}</td>
-            <td>{price}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <table>
-      <thead>
-        <tr>
-          <th>price</th>
-          <th>size</th>
-          <th>total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {levelsWithTotals.map(({ price, size, total }) => (
-          <tr key={price}>
-            <td>{price}</td>
-            <td>{size}</td>
-            <td>
-              {total} {((total / grandTotal) * 100).toFixed(2)}%
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+  return (
+    <Root side={side}>
+      <HeaderRow side={side}>
+        <Header>price</Header>
+        <Header>size</Header>
+        <Header>total</Header>
+      </HeaderRow>
+      {levelsWithTotals.map(({ price, size, total }) => (
+        <Row key={price}>
+          <Depth
+            side={side}
+            style={{ width: `${(total / grandTotal) * 100}%` }}
+          />
+          <Cell side={side}>{priceFormatter.format(price)}</Cell>
+          <Cell>{sizeFormatter.format(size)}</Cell>
+          <Cell>{sizeFormatter.format(total)}</Cell>
+        </Row>
+      ))}
+    </Root>
   )
 }
 
