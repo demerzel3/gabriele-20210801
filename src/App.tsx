@@ -7,6 +7,7 @@ import Levels from './Levels'
 import groupLevels from './lib/groupLevels'
 import { SyncAlt, ErrorOutline } from './icons'
 import { primary, danger, gray1, gray2, gray3, gray4, gray5 } from './colors'
+import { medium, large } from './breakpoints'
 
 const DEFAULT_GROUP_SIZE = {
   PI_XBTUSD: 0.5,
@@ -28,6 +29,11 @@ const GlobalStyle = createGlobalStyle`
 
 const Main = styled.div`
   background-color: ${gray1};
+  margin: 0 auto;
+
+  @media (min-width: ${large}) {
+    width: 900px;
+  }
 `
 
 const Actions = styled.div`
@@ -87,6 +93,19 @@ const GroupSizeSelect = styled.select`
   padding: 0 8px;
 `
 
+const SidesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: ${medium}) {
+    flex-direction: row-reverse;
+
+    & > * {
+      flex: 1 1 50%;
+    }
+  }
+`
+
 function App() {
   const [productId, setProductId] = useState<ProductId>('PI_XBTUSD')
   const [groupSize, setGroupSize] = useState(0.5)
@@ -137,10 +156,10 @@ function App() {
           </GroupSizeSelect>
         </Header>
         {groupedBook && (
-          <>
+          <SidesContainer>
             <Levels levels={groupedBook.sell.slice(0, 15)} side="sell" />
             <Levels levels={groupedBook.buy.slice(-15).reverse()} side="buy" />
-          </>
+          </SidesContainer>
         )}
       </Main>
       <Actions>

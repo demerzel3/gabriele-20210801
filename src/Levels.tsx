@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
+import { medium } from './breakpoints'
 import { green1, green2, red1, red2, gray4 } from './colors'
 
 import { OrderBookLevel } from './types'
@@ -17,18 +18,31 @@ const Root = styled.div<{ side: Side }>`
   text-align: right;
   display: flex;
   flex-direction: ${(p) => (p.side === 'buy' ? 'column' : 'column-reverse')};
+
+  @media (min-width: ${medium}) {
+    flex-direction: column;
+  }
 `
 
-const Row = styled.div`
+const Row = styled.div<{ side: Side }>`
   position: relative;
   display: flex;
   line-height: 1.6em;
   padding: 0 48px;
+
+  @media (min-width: ${medium}) {
+    flex-direction: ${(p) => (p.side === 'sell' ? 'row' : 'row-reverse')};
+  }
 `
 
-const HeaderRow = styled(Row)<{ side: Side }>`
+const HeaderRow = styled(Row)`
   ${(p) => (p.side === 'sell' ? 'order: 1;' : '')}
   ${(p) => (p.side === 'buy' ? 'visibility: hidden;' : '')}
+
+  @media (min-width: ${medium}) {
+    order: 0;
+    visibility: visible;
+  }
 `
 
 const Depth = styled.div<{ side: Side }>`
@@ -38,6 +52,10 @@ const Depth = styled.div<{ side: Side }>`
   bottom: 0;
   background-color: ${(p) => (p.side === 'buy' ? green1 : red1)};
   z-index: 0;
+
+  @media (min-width: ${medium}) {
+    ${(p) => (p.side === 'sell' ? `right: auto; left: 0;` : '')}
+  }
 `
 
 const Header = styled.div`
@@ -79,7 +97,7 @@ const Levels: React.FC<LevelsProps> = ({ levels, side }) => {
         <Header>total</Header>
       </HeaderRow>
       {levelsWithTotals.map(({ price, size, total }) => (
-        <Row key={price}>
+        <Row side={side} key={price}>
           <Depth
             side={side}
             style={{ width: `${(total / grandTotal) * 100}%` }}
